@@ -85,7 +85,8 @@ svg{display:block}
 .idx{font-size:12px;color:var(--mut);background:#F3F4F6;border-radius:6px;padding:2px 8px}
 .lc-title{font-size:15px;font-weight:500;line-height:1.45;cursor:text;padding:2px 4px;margin:-2px -4px;border-radius:6px}
 .lc-title:hover{background:var(--pri-l)}
-.lc-point{font-size:13px;color:var(--mut);line-height:1.5}
+.lc-point{font-size:13px;color:var(--mut);line-height:1.5;cursor:text;padding:2px 4px;margin:-2px -4px;border-radius:6px}
+.lc-point:hover{background:var(--pri-l)}
 .bar{height:6px;background:#EEF0F3;border-radius:99px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--pri);border-radius:99px;transition:width .3s}
 .steps{display:flex;gap:5px;flex-wrap:wrap}
@@ -533,7 +534,7 @@ function renderBoard(){
       + '<div class="lc-top"><span class="idx">第 ' + esc(l['序号']) + ' 节</span>'
       + '<span class="idx">' + done + '/' + STEPS.length + '</span></div>'
       + '<div class="lc-title" data-field="课节标题" data-edit="' + esc(l._id) + '" data-sp-bindable="database" data-sp-database-id="H0IeEof4d9itMZz6HHGG79">' + esc(l['课节标题'] || '未命名课节') + '</div>'
-      + '<div class="lc-point" data-field="本节要点" data-sp-bindable="database" data-sp-database-id="H0IeEof4d9itMZz6HHGG79">' + esc(l['本节要点'] || '点标题补充这一节的一句核心观点') + '</div>'
+      + '<div class="lc-point" data-field="本节要点" data-edit="' + esc(l._id) + '" data-sp-bindable="database" data-sp-database-id="H0IeEof4d9itMZz6HHGG79">' + esc(l['本节要点'] || '点这里写一句核心观点') + '</div>'
       + '<div class="bar"><i style="width:' + pct + '%"></i></div>'
       + '<div class="steps">' + steps + '</div>'
       + '<div class="lc-foot"><span class="due'+(overdue?' red':'')+'">截止'
@@ -644,9 +645,24 @@ document.addEventListener('click', function(e){
   var go = t.getAttribute('data-go');
   if(go){ switchView('script'); setLesson(Number(go)); window.scrollTo({top:0, behavior:'smooth'}); return; }
 
+  /* 置顶区「标记完成」：必须排在 data-step 之前，否则会被下面的工序分支拦截 */
+  var doneId = t.getAttribute('data-done');
+  if(doneId){
+    var dstep = t.getAttribute('data-step');
+    var dl = null;
+    state.lessons.forEach(function(x){ if(x._id===doneId) dl=x; });
+    if(!dl || !dstep) return;
+    var dp = {}; dp[dstep] = { checkbox: true };
+    dl[dstep] = true;
+    renderRing(); renderToday(); renderBoard(); renderChips(); renderScript();
+    patchLesson(doneId, dp, '已完成：' + dstep);
+    return;
+  }
+
   var step = t.getAttribute('data-step');
   if(step){
     var rec = t.getAttribute('data-rec');
+    if(!rec) return;
     var l = null;
     state.lessons.forEach(function(x){ if(x._id===rec) l=x; });
     if(!l) return;
@@ -695,16 +711,17 @@ document.addEventListener('click', function(e){
 });
 
 $('#board').addEventListener('click', function(e){
-  var el = e.target.closest ? e.target.closest('.lc-title') : null;
+  if(!e.target.closest) return;
+  var el = e.target.closest('.lc-title') || e.target.closest('.lc-point');
   if(!el) return;
   var id = el.getAttribute('data-edit');
   var l = null;
   state.lessons.forEach(function(x){ if(x._id===id) l=x; });
   if(!l) return;
-  var field = (e.target === el) ? '课节标题' : '';
-  var cur = field === '课节标题' ? (l['课节标题']||'') : (l['本节要点']||'');
+  var field = el.classList.contains('lc-point') ? '本节要点' : '课节标题';
+  var cur = l[field] || '';
   var v = prompt(field === '课节标题' ? '修改课节标题' : '这一节的一句核心观点', cur);
-  if(v === null) return;
+  if(v === null || v === undefined) return;
   var props = {}; props[field] = { text: v };
   l[field] = v;
   renderBoard(); renderChips(); renderToday(); renderScript();
