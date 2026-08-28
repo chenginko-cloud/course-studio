@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>进阶少年自驱力 · 课程制作台</title>
+<!-- 进阶少年自驱力 · 课程制作台（独立版，纯本地存储） -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="课程制作台">
+<meta name="theme-color" content="#2563EB">
+<style>
+:root{
+  --bg:#F6F7F9; --card:#FFFFFF; --bd:#E5E7EB; --bd2:#D1D5DB;
+  --tx:#111827; --mut:#6B7280; --mut2:#9CA3AF;
+  --pri:#2563EB; --pri-d:#1D4ED8; --pri-l:#EFF6FF;
+  --red:#DC2626; --red-l:#FEF2F2; --grn:#059669; --grn-l:#ECFDF5;
+  --amb:#D97706; --amb-l:#FFFBEB;
+  --r:12px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--tx);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:15px; line-height:1.6;
+  padding-bottom:calc(32px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1000px;margin:0 auto;padding:16px}
+h1,h2,h3{margin:0;font-weight:500}
+button{font-family:inherit;font-size:15px;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;font-size:16px;color:var(--tx)}
+svg{display:block}
+.hide{display:none !important}
+
+/* header */
+.hd{background:var(--card);border-bottom:1px solid var(--bd);padding:16px 0 14px}
+.hd-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hd-t{flex:1;min-width:200px}
+.hd-t h1{font-size:19px;letter-spacing:.2px}
+.hd-t p{margin:3px 0 0;font-size:13px;color:var(--mut)}
+.ring-wrap{position:relative;width:72px;height:72px;flex:0 0 auto}
+.ring-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500}
+.hd-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--bd2);background:var(--card);color:var(--tx);font-size:14px;transition:.15s}
+.btn:hover{border-color:var(--pri);color:var(--pri)}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn.pri:hover{background:var(--pri-d);color:#fff}
+.btn.sm{min-height:36px;padding:0 10px;font-size:13px;border-radius:8px}
+.btn.dgr:hover{border-color:var(--red);color:var(--red)}
+.sync{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--mut);padding:0 10px;min-height:36px;border:1px solid var(--bd);border-radius:8px;background:var(--card)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--grn)}
+.dot.off{background:var(--red)} .dot.ing{background:var(--amb)}
+
+/* banner */
+.banner{margin:14px 0 0;padding:10px 14px;border-radius:10px;font-size:13px;display:flex;gap:8px;align-items:center}
+.banner.off{background:var(--amb-l);color:#92400E;border:1px solid #FDE68A}
+.banner.tip{background:var(--pri-l);color:var(--pri-d);border:1px solid #BFDBFE}
+
+/* card */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-top:14px}
+.card > h2{font-size:16px;display:flex;align-items:center;gap:8px}
+.card > h2 .cnt{font-size:12px;color:var(--mut);font-weight:400}
+.sub{font-size:13px;color:var(--mut);margin:4px 0 0}
+
+/* today */
+#todayList{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.td{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:#FCFCFD}
+.td.over{border-color:#FECACA;background:var(--red-l)}
+.td-m{flex:1;min-width:0}
+.td-m b{font-weight:500;font-size:14px}
+.td-m span{display:block;font-size:12px;color:var(--mut)}
+.td.over .td-m span{color:var(--red)}
+.empty{font-size:14px;color:var(--mut);padding:14px 0;text-align:center}
+
+/* tabs */
+.tabs{display:flex;gap:6px;margin-top:16px;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:5px;position:sticky;top:0;z-index:20}
+.tab{flex:1;min-height:44px;border-radius:8px;font-size:14px;color:var(--mut);display:flex;align-items:center;justify-content:center;gap:6px}
+.tab.on{background:var(--pri-l);color:var(--pri-d);font-weight:500}
+
+/* board */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+.lc{border:1px solid var(--bd);border-radius:var(--r);padding:14px;background:var(--card);display:flex;flex-direction:column;gap:10px}
+.lc-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.idx{font-size:12px;color:var(--mut);background:#F3F4F6;border-radius:6px;padding:2px 8px}
+.lc-title{font-size:15px;font-weight:500;line-height:1.45;cursor:text;padding:2px 4px;margin:-2px -4px;border-radius:6px}
+.lc-title:hover{background:var(--pri-l)}
+.lc-point{font-size:13px;color:var(--mut);line-height:1.5}
+.bar{height:6px;background:#EEF0F3;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pri);border-radius:99px;transition:width .3s}
+.steps{display:flex;gap:5px;flex-wrap:wrap}
+.st{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:40px;padding:5px 3px;border-radius:8px;border:1px solid transparent;font-size:11px;color:var(--mut2);cursor:pointer}
+.st:hover{background:#F9FAFB;border-color:var(--bd)}
+.st.done{color:var(--grn)}
+.st i{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--bd2);display:block;background:var(--card)}
+.st.done i{background:var(--grn);border-color:var(--grn);position:relative}
+.st.done i:after{content:"";position:absolute;left:5px;top:2px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.st.cur{color:var(--pri);border-color:#BFDBFE;background:var(--pri-l)}
+.st.cur i{border-color:var(--pri)}
+.lc-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:4px}
+.due{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mut)}
+.due.red{color:var(--red)}
+.due input{border:1px solid var(--bd);border-radius:8px;padding:6px 8px;font-size:13px;background:var(--card);min-height:34px}
+
+/* script view */
+.chips{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;-webkit-overflow-scrolling:touch}
+.chip{flex:0 0 auto;min-width:44px;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--bd);background:var(--card);font-size:14px;color:var(--mut);display:flex;align-items:center;justify-content:center}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:500}
+.chip.dn i{width:6px;height:6px;border-radius:50%;display:block;margin-left:5px;background:var(--grn)}
+.chip.on.dn i{background:#fff}
+.script-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:6px}
+.script-hd h3{font-size:16px}
+.spd{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mut)}
+.spd select{border:1px solid var(--bd2);border-radius:8px;padding:8px;min-height:38px;background:var(--card)}
+.durbar{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:13px;color:var(--mut)}
+.durbar .bar{flex:1}
+.durbar b{font-weight:500;color:var(--tx)}
+.durbar.over b{color:var(--red)}
+.durbar.over .bar i{background:var(--red)}
+.seg{border:1px solid var(--bd);border-radius:var(--r);padding:12px;margin-top:10px}
+.seg-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.seg-h b{font-size:14px;font-weight:500}
+.seg-h span{font-size:12px;color:var(--mut)}
+.seg textarea{width:100%;margin-top:8px;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;min-height:96px;resize:vertical;line-height:1.7;background:#FCFCFD}
+.seg textarea:focus{outline:none;border-color:var(--pri);background:#fff}
+.mats{margin-top:14px;border-top:1px dashed var(--bd);padding-top:12px}
+.mats h4{margin:0 0 8px;font-size:13px;font-weight:500;color:var(--mut)}
+.mini{font-size:13px;color:var(--mut);padding:6px 10px;background:#F9FAFB;border-radius:8px;margin-bottom:6px;line-height:1.5}
+
+/* materials */
+.mform{display:grid;grid-template-columns:1fr 130px 110px auto;gap:8px;margin-top:12px}
+.mform input,.mform textarea,.mform select{width:100%;border:1px solid var(--bd2);border-radius:10px;padding:10px 12px;min-height:44px;background:var(--card)}
+.mform textarea{grid-column:1 / -1;min-height:70px;resize:vertical;line-height:1.6}
+.mform input:focus,.mform textarea:focus,.mform select:focus{outline:none;border-color:var(--pri)}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.mlist{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.mrow{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;background:var(--card)}
+.mrow.used{opacity:.55}
+.mrow .mc{flex:1;min-width:0;font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.mtag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:99px;background:var(--pri-l);color:var(--pri-d);margin-right:6px;vertical-align:1px}
+.mtag.g{background:#F3F4F6;color:var(--mut)}
+.mact{display:flex;gap:6px;flex:0 0 auto}
+
+.toast{position:absolute;left:50%;transform:translateX(-50%);background:#111827;color:#fff;font-size:13px;padding:9px 16px;border-radius:8px;opacity:0;transition:.25s;pointer-events:none;z-index:99}
+.toast.on{opacity:1}
+.foot{text-align:center;font-size:12px;color:var(--mut2);padding:24px 0 8px;line-height:1.8}
+
+@media (max-width:768px){
+  .wrap{padding:12px}
+  .hd-t h1{font-size:17px}
+  .grid{grid-template-columns:1fr}
+  .mform{grid-template-columns:1fr 1fr}
+  .mform textarea{grid-column:1 / -1}
+  .mform .btn{grid-column:1 / -1}
+  .lc-foot{flex-direction:column;align-items:stretch}
+  .tabs{position:static}
+}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="wrap">
+    <div class="hd-row">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 72 72" width="72" height="72" role="img" aria-label="全课总进度">
+          <circle cx="36" cy="36" r="30" fill="none" stroke="#EEF0F3" stroke-width="7"></circle>
+          <circle id="ringFg" cx="36" cy="36" r="30" fill="none" stroke="#2563EB" stroke-width="7" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="188.5" transform="rotate(-90 36 36)"></circle>
+        </svg>
+        <div class="ring-txt" id="ringTxt" data-sp-bindable="database" data-sp-database-id="H0IeEof4d9itMZz6HHGG79">0%</div>
+      </div>
+      <div class="hd-t">
+        <h1>进阶少年自驱力 · 课程制作台</h1>
+        <p id="hdSub" data-sp-bindable="database" data-sp-database-id="H0IeEof4d9itMZz6HHGG79">10 节视频课 · 每节 30 分钟 · 正在加载</p>
+      </div>
+    </div>
+    <div class="hd-acts">
+      <span class="sync" id="sync"><span class="dot" id="syncDot"></span><span id="syncTxt">连接中</span></span>
+      <button class="btn sm" id="btnExport">导出 JSON 备份</button>
+      <button class="btn sm" id="btnImport">导入恢复</button>
+      <button class="btn sm dgr" id="btnClear">清空示例数据</button>
+      <input type="file" id="fileInput" accept="application/json,.json" class="hide">
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="tipBar" class="banner tip hide"></div>
+
+  <section class="card" id="today">
+    <h2>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      今天要处理
+      <span class="cnt" id="todayCnt"></span>
+    </h2>
+    <p class="sub">到期的课节会列在这里，昨天没推进完的自动顺延到今天</p>
+    <div id="todayList"><div class="empty">加载中…</div></div>
+  </section>
+
+  <nav class="tabs">
+    <button class="tab on" data-view="board">课程进度看板</button>
+    <button class="tab" data-view="script">单节讲稿台</button>
+    <button class="tab" data-view="material">素材灵感池</button>
+  </nav>
+
+  <section id="view-board">
+    <div class="card">
+      <h2>课程进度看板 <span class="cnt" id="boardCnt"></span></h2>
+      <p class="sub">点圆点切换工序状态，点标题可改课名，日期可改截止时间</p>
+      <div class="grid" id="board"></div>
+    </div>
+  </section>
+
+  <section id="view-script" class="hide">
+    <div class="card">
+      <div class="chips" id="chips"></div>
+      <div class="script-hd">
+        <h3 id="scriptTitle">第 1 节</h3>
+        <label class="spd">语速
+          <select id="speed">
+            <option value="180">180 字/分（慢）</option>
+            <option value="200">200 字/分</option>
+            <option value="220" selected>220 字/分（推荐）</option>
+            <option value="250">250 字/分（快）</option>
+          </select>
+        </label>
+      </div>
+      <div class="durbar" id="durbar">
+        <b id="durTxt">0.0 / 30 分钟</b>
+        <div class="bar"><i id="durBar" style="width:0%"></i></div>
+      </div>
+      <div id="segs"></div>
+      <div class="mats">
+        <h4>本节可用素材</h4>
+        <div id="segMats"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-material" class="hide">
+    <div class="card">
+      <h2>素材灵感池 <span class="cnt" id="matCnt"></span></h2>
+      <p class="sub">讲课想到的案例、金句、互动设计随手记，写稿时在讲稿台直接调用</p>
+      <div class="mform">
+        <textarea id="mContent" name="素材内容" placeholder="写点什么…比如：一个初三学生从被催到主动早起打卡的真实转变"></textarea>
+        <select id="mType" name="类型"><option value="">类型</option></select>
+        <input id="mLesson" name="适用课节" type="text" inputmode="numeric" placeholder="适用课节（如 3）">
+        <button class="btn pri" id="btnAddMat">添加素材</button>
+      </div>
+      <div class="filters" id="matFilters"></div>
+      <div class="mlist" id="matList"></div>
+    </div>
+  </section>
+
+  <p class="foot">
+    数据保存在这台设备的浏览器里，换设备或清缓存前记得导出 JSON 备份<br>
+    手机浏览器打开后点「分享 → 添加到主屏幕」，即可当 App 用
+  </p>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- 渲染骨架：保证各字段 selector 在静态 HTML 中存在 -->
+<div id="tpl" class="hide" aria-hidden="true">
+  <div class="lc">
+    <span data-field="课节标题"></span>
+    <span data-field="本节要点"></span>
+    <span data-field="序号"></span>
+    <input type="date" name="截止日期" data-field="截止日期">
+    <i data-field="定题"></i><i data-field="大纲"></i><i data-field="讲稿"></i><i data-field="课件"></i>
+    <i data-field="录制"></i><i data-field="剪辑"></i><i data-field="发布"></i>
+  </div>
+  <div class="seg">
+    <span data-field="段落标题"></span>
+    <span data-field="建议分钟"></span>
+    <span data-field="课节序号"></span>
+    <span data-field="段落序号"></span>
+    <textarea data-field="讲稿正文"></textarea>
+  </div>
+  <div class="mrow">
+    <span data-field="素材内容"></span>
+    <span data-field="类型"></span>
+    <span data-field="适用课节"></span>
+    <span data-field="收录日期"></span>
+    <span data-field="已使用"></span>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var DB_LESSONS = 'H0IeEof4d9itMZz6HHGG79';
+var DB_SCRIPTS = 'VGbxjmlMyexyARLLEsYKoQ';
+var DB_MATERIALS = 'oY2KQhqTG1CGMMlDCwne7R';
+
+var STEPS = ['定题','大纲','讲稿','课件','录制','剪辑','发布'];
+var SEGMENTS = [
+  {n:'开场钩子', m:2,  tip:'用一个问题、一个反常识或一段场景把人拉进来'},
+  {n:'本节收益', m:2,  tip:'明确告诉学员：看完这节，你能拿到什么'},
+  {n:'核心内容', m:18, tip:'拆成 3 个知识点，每个 6 分钟左右，讲完一个就小结一次'},
+  {n:'案例演示', m:4,  tip:'一个真实场景的完整演示，家长/孩子能对号入座'},
+  {n:'练习互动', m:2,  tip:'给一个现场能做的动作，让学员当场用起来'},
+  {n:'总结预告', m:2,  tip:'三句话收口 + 埋下节课钩子'}
+];
+var TOTAL_MIN = 30;
+var LS_KEY = 'wb_coursestudio_v1';
+var DRAFT_KEY = 'wb_coursestudio_draft';
+
+var db = (window.__SMART_PAGE__ && window.__SMART_PAGE__.database) ? window.__SMART_PAGE__.database : null;
+var state = {lessons:[], scripts:[], materials:[], online:false, cur:1, filter:'', speed:220, seeded:false};
+var SCHEMA_OPTIONS = {};
+
+/* ---------- utils ---------- */
+function $(s){ return document.querySelector(s); }
+function $$(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); }
+function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g, function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function ymd(d){
+  var m = d.getMonth()+1, dd = d.getDate();
+  return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dd<10?'0':'')+dd;
+}
+function fmtCN(s){ if(!s) return ''; var p=String(s).slice(0,10).split('-'); return p.length<3?String(s):(p[1].replace(/^0/,'')+'月'+p[2].replace(/^0/,'')+'日'); }
+function chars(t){ return String(t||'').replace(/\s/g,'').length; }
+function bind(el, dbId){ if(!el) return; el.setAttribute('data-sp-bindable','database'); el.setAttribute('data-sp-database-id', dbId); }
+function toast(msg){
+  var t=$('#toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._tm); t._tm=setTimeout(function(){ t.classList.remove('on'); }, 1800);
+}
+function setSync(k){
+  var dot=$('#syncDot'), txt=$('#syncTxt');
+  dot.className='dot'+((k==='syncing')?' ing':'');
+  txt.textContent = (k==='syncing') ? '保存中' : '本机已存';
+  if($('#offlineBar')) $('#offlineBar').classList.add('hide');
+}
+function snapshot(){ return {v:1, at:new Date().toISOString(), lessons:state.lessons, scripts:state.scripts, materials:state.materials}; }
+function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(snapshot())); }catch(e){} }
+function loadLocal(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)); }catch(e){ return null; } }
+
+/* ---------- data ---------- */
+function rowVal(r, k){ return r ? r[k] : undefined; }
+
+function rows(res){ return (res && res.results) ? res.results : []; }
+
+function loadLessons(){
+  return db.query({ databaseId: 'H0IeEof4d9itMZz6HHGG79', pageSize: 100 }).then(rows);
+}
+function loadScripts(){
+  return db.query({ databaseId: 'VGbxjmlMyexyARLLEsYKoQ', pageSize: 100 }).then(rows);
+}
+function loadMaterials(){
+  return db.query({ databaseId: 'oY2KQhqTG1CGMMlDCwne7R', pageSize: 100 }).then(rows);
+}
+
+function loadSchema(){
+  if(!db){ renderSelectOptions(); return Promise.resolve(); }
+  return db.getSchema({ databaseId: 'oY2KQhqTG1CGMMlDCwne7R' }).then(function(s){
+    (s.properties||[]).forEach(function(f){
+      if((f.type==='select'||f.type==='multi_select') && f.config && f.config.options){
+        SCHEMA_OPTIONS[f.name] = f.config.options;
+      }
+    });
+    renderSelectOptions();
+  }).catch(function(){ renderSelectOptions(); });
+}
+
+var DEFAULT_TYPES = [{'text':'案例'},{'text':'金句'},{'text':'互动'},{'text':'疑问'},{'text':'故事'}];
+
+function renderSelectOptions(){
+  var sel = $('#mType');
+  var opts = SCHEMA_OPTIONS['类型'] || [];
+  if(!opts.length) opts = DEFAULT_TYPES;
+  var html = '<option value="">全部类型</option>';
+  opts.forEach(function(o){ html += '<option value="'+esc(o.id)+'">'+esc(o.text)+'</option>'; });
+  sel.innerHTML = html;
+
+  var f = $('#matFilters');
+  var fh = '<button class="chip on" data-ft="">全部</button>';
+  opts.forEach(function(o){ fh += '<button class="chip" data-ft="'+esc(o.text)+'">'+esc(o.text)+'</button>'; });
+  f.innerHTML = fh;
+}
+
+function applyLocal(d){
+  state.lessons = (d && d.lessons) || [];
+  state.scripts = (d && d.scripts) || [];
+  state.materials = (d && d.materials) || [];
+}
+
+function loadAll(){
+  if(!db){
+    var d = loadLocal();
+    if(!d || !d.lessons || !d.lessons.length){ d = seedData(); saveLocal(); }
+    applyLocal(d);
+    state.online=false; setSync('ok'); renderAll(); checkTip(); return Promise.resolve();
+  }
+  setSync('syncing');
+  return Promise.all([loadLessons(), loadScripts(), loadMaterials()]).then(function(rs){
+    state.lessons = rs[0]; state.scripts = rs[1]; state.materials = rs[2];
+    state.lessons.sort(function(a,b){ return Number(a['序号']) - Number(b['序号']); });
+    state.online = true; setSync('ok'); saveLocal(); renderAll(); checkTip();
+  }).catch(function(){
+    applyLocal(loadLocal());
+    state.lessons.sort(function(a,b){ return Number(a['序号']) - Number(b['序号']); });
+    state.online = false; setSync('offline'); renderAll();
+  });
+}
+
+function offlineFail(msg){
+  state.online = false; setSync('offline'); saveLocal();
+  if(msg) toast(msg);
+}
+
+function patchLesson(recordId, props, okMsg){
+  if(!(db && state.online) || !recordId){ saveLocal(); return Promise.resolve(); }
+  setSync('syncing');
+  return db.updateRecord({ databaseId: 'H0IeEof4d9itMZz6HHGG79', recordId: recordId, properties: props })
+    .then(function(){ setSync('ok'); saveLocal(); if(okMsg) toast(okMsg); })
+    .catch(function(){ offlineFail('保存失败，已存本机'); });
+}
+
+function patchScript(recordId, props){
+  if(!(db && state.online) || !recordId){ saveLocal(); return Promise.resolve(); }
+  setSync('syncing');
+  return db.updateRecord({ databaseId: 'VGbxjmlMyexyARLLEsYKoQ', recordId: recordId, properties: props })
+    .then(function(){ setSync('ok'); saveLocal(); })
+    .catch(function(){ offlineFail('讲稿未同步到云端，已存本机'); });
+}
+
+function patchMaterial(recordId, props){
+  if(!(db && state.online) || !recordId){ saveLocal(); return Promise.resolve(); }
+  setSync('syncing');
+  return db.updateRecord({ databaseId: 'oY2KQhqTG1CGMMlDCwne7R', recordId: recordId, properties: props })
+    .then(function(){ setSync('ok'); saveLocal(); })
+    .catch(function(){ offlineFail('未同步到云端，已存本机'); });
+}
+
+/* 内置种子数据：独立版首次打开时载入，保证不出现空白页 */
+function seedData(){ return {"v": 1, "lessons": [{"_id": "seed_l1", "课节标题": "自驱力的底层开关：为什么奖励和催促都会失效", "本节要点": "外部激励会挤出内在动机，越奖励越不主动", "截止日期": "2026-08-26", "序号": 1, "定题": true, "大纲": true, "讲稿": true, "课件": true, "录制": true, "剪辑": false, "发布": false}, {"_id": "seed_l2", "课节标题": "三个心理需求：自主、胜任、联结", "本节要点": "自驱力不是性格，是三个需求被满足后的结果", "截止日期": "2026-08-30", "序号": 2, "定题": true, "大纲": true, "讲稿": true, "课件": false, "录制": false, "剪辑": false, "发布": false}, {"_id": "seed_l3", "课节标题": "从\"要我做\"到\"我要做\"：动机的三层转化", "本节要点": "外部调节→内摄调节→认同调节的爬坡路径", "截止日期": "2026-08-28", "序号": 3, "定题": true, "大纲": true, "讲稿": false, "课件": false, "录制": false, "剪辑": false, "发布": false}, {"_id": "seed_l4", "课节标题": "唤醒目标感：帮孩子找到自己的\"为什么\"", "本节要点": "没有目标感的孩子，再自律也走不远", "截止日期": "2026-09-02", "序号": 4, "定题": true, "大纲": false, "讲稿": false, "课件": false, "录制": false, "剪辑": false, "发布": false}, {"_id": "seed_l5", "课节标题": "拆解任务：把大山变成能迈出的第一步", "本节要点": "启动成本比任务难度更决定成败", "截止日期": "2026-09-05", "序号": 5, "定题": true, "大纲": false, "讲稿": false, "课件": false, "录制": false, "剪辑": false, "发布": false}, {"_id": "seed_l6", "课节标题": "专注力保卫战：和手机抢回注意力", "本节要点": "不是戒手机，是重新设计环境", "截止日期": "2026-09-08", "序号": 6, "定题": true, "大纲": false, "讲稿": false, "课件": false, "录制": false, "剪辑": false, "发布": false}, {"_id": "seed_l7", "课节标题": "抗挫力：失败之后怎么快速重启", "本节要点": "归因方式决定孩子是反弹还是放弃", "截止日期": "2026-09-11", "序号": 7, "定题": true, "大纲": false, "讲稿": false, "课件": false, "录制": false, "剪辑": false, "发布": false}, {"_id": "seed_l8", "课节标题": "习惯的复利：从刻意坚持到自动运转", "本节要点": "用最小可行习惯绕过意志力消耗", "截止日期": "2026-09-14", "序号": 8, "定题": true, "大纲": false, "讲稿": false, "课件": false, "录制": false, "剪辑": false, "发布": false}, {"_id": "seed_l9", "课节标题": "父母的边界：从监工退回到教练", "本节要点": "你越盯，他的自驱力越萎缩", "截止日期": "2026-09-17", "序号": 9, "定题": true, "大纲": false, "讲稿": false, "课件": false, "录制": false, "剪辑": false, "发布": false}, {"_id": "seed_l10", "课节标题": "家庭自驱系统：让好状态持续一年", "本节要点": "把方法固化成家庭运行的默认规则", "截止日期": "2026-09-20", "序号": 10, "定题": true, "大纲": false, "讲稿": false, "课件": false, "录制": false, "剪辑": false, "发布": false}], "scripts": [{"_id": "seed_s1_1", "段落标题": "第1节 · 开场钩子", "讲稿正文": "先问你一个问题：你有没有发现，一个本来挺爱看书的孩子，一旦你开始说\"读完这本奖励你玩半小时手机\"，他对书本身的兴趣反而开始下降？这不是个例。心理学家做过几十年的实验，结论高度一致：外部奖励会挤出内在动机。这一节我们就把这个\"挤出效应\"讲透，看清奖励和催促为什么越用力越失效。", "建议分钟": 2, "课节序号": 1, "段落序号": 1}, {"_id": "seed_s1_2", "段落标题": "第1节 · 本节收益", "讲稿正文": "", "建议分钟": 2, "课节序号": 1, "段落序号": 2}, {"_id": "seed_s1_3", "段落标题": "第1节 · 核心内容", "讲稿正文": "我们把自驱力拆成三根支柱来看。第一根是自主感——孩子觉得这件事是\"我选的\"，而不是\"被安排的\"。注意，自主不等于放任，它指的是在边界之内有选择空间。第二根是胜任感——孩子相信自己能做成。这里有个关键细节：胜任感来自\"我通过努力做到了\"，而不是\"你夸我聪明\"。第三根是联结感——我做这件事的时候，和重要的人之间是有情感连接的，我不是一个人孤军奋战。这三根支柱缺一根，自驱力就会塌一角。家长最常犯的错是只补胜任感，拼命夸孩子\"你真棒\",结果自主感被进一步挤压，孩子越来越依赖外部评价。", "建议分钟": 18, "课节序号": 1, "段落序号": 3}, {"_id": "seed_s1_4", "段落标题": "第1节 · 案例演示", "讲稿正文": "", "建议分钟": 4, "课节序号": 1, "段落序号": 4}, {"_id": "seed_s1_5", "段落标题": "第1节 · 练习互动", "讲稿正文": "", "建议分钟": 2, "课节序号": 1, "段落序号": 5}, {"_id": "seed_s1_6", "段落标题": "第1节 · 总结预告", "讲稿正文": "", "建议分钟": 2, "课节序号": 1, "段落序号": 6}, {"_id": "seed_s2_1", "段落标题": "第2节 · 开场钩子", "讲稿正文": "", "建议分钟": 2, "课节序号": 2, "段落序号": 1}, {"_id": "seed_s2_2", "段落标题": "第2节 · 本节收益", "讲稿正文": "", "建议分钟": 2, "课节序号": 2, "段落序号": 2}, {"_id": "seed_s2_3", "段落标题": "第2节 · 核心内容", "讲稿正文": "", "建议分钟": 18, "课节序号": 2, "段落序号": 3}, {"_id": "seed_s2_4", "段落标题": "第2节 · 案例演示", "讲稿正文": "", "建议分钟": 4, "课节序号": 2, "段落序号": 4}, {"_id": "seed_s2_5", "段落标题": "第2节 · 练习互动", "讲稿正文": "", "建议分钟": 2, "课节序号": 2, "段落序号": 5}, {"_id": "seed_s2_6", "段落标题": "第2节 · 总结预告", "讲稿正文": "", "建议分钟": 2, "课节序号": 2, "段落序号": 6}, {"_id": "seed_s3_1", "段落标题": "第3节 · 开场钩子", "讲稿正文": "", "建议分钟": 2, "课节序号": 3, "段落序号": 1}, {"_id": "seed_s3_2", "段落标题": "第3节 · 本节收益", "讲稿正文": "", "建议分钟": 2, "课节序号": 3, "段落序号": 2}, {"_id": "seed_s3_3", "段落标题": "第3节 · 核心内容", "讲稿正文": "", "建议分钟": 18, "课节序号": 3, "段落序号": 3}, {"_id": "seed_s3_4", "段落标题": "第3节 · 案例演示", "讲稿正文": "", "建议分钟": 4, "课节序号": 3, "段落序号": 4}, {"_id": "seed_s3_5", "段落标题": "第3节 · 练习互动", "讲稿正文": "", "建议分钟": 2, "课节序号": 3, "段落序号": 5}, {"_id": "seed_s3_6", "段落标题": "第3节 · 总结预告", "讲稿正文": "", "建议分钟": 2, "课节序号": 3, "段落序号": 6}, {"_id": "seed_s4_1", "段落标题": "第4节 · 开场钩子", "讲稿正文": "", "建议分钟": 2, "课节序号": 4, "段落序号": 1}, {"_id": "seed_s4_2", "段落标题": "第4节 · 本节收益", "讲稿正文": "", "建议分钟": 2, "课节序号": 4, "段落序号": 2}, {"_id": "seed_s4_3", "段落标题": "第4节 · 核心内容", "讲稿正文": "", "建议分钟": 18, "课节序号": 4, "段落序号": 3}, {"_id": "seed_s4_4", "段落标题": "第4节 · 案例演示", "讲稿正文": "", "建议分钟": 4, "课节序号": 4, "段落序号": 4}, {"_id": "seed_s4_5", "段落标题": "第4节 · 练习互动", "讲稿正文": "", "建议分钟": 2, "课节序号": 4, "段落序号": 5}, {"_id": "seed_s4_6", "段落标题": "第4节 · 总结预告", "讲稿正文": "", "建议分钟": 2, "课节序号": 4, "段落序号": 6}, {"_id": "seed_s5_1", "段落标题": "第5节 · 开场钩子", "讲稿正文": "", "建议分钟": 2, "课节序号": 5, "段落序号": 1}, {"_id": "seed_s5_2", "段落标题": "第5节 · 本节收益", "讲稿正文": "", "建议分钟": 2, "课节序号": 5, "段落序号": 2}, {"_id": "seed_s5_3", "段落标题": "第5节 · 核心内容", "讲稿正文": "", "建议分钟": 18, "课节序号": 5, "段落序号": 3}, {"_id": "seed_s5_4", "段落标题": "第5节 · 案例演示", "讲稿正文": "", "建议分钟": 4, "课节序号": 5, "段落序号": 4}, {"_id": "seed_s5_5", "段落标题": "第5节 · 练习互动", "讲稿正文": "", "建议分钟": 2, "课节序号": 5, "段落序号": 5}, {"_id": "seed_s5_6", "段落标题": "第5节 · 总结预告", "讲稿正文": "", "建议分钟": 2, "课节序号": 5, "段落序号": 6}, {"_id": "seed_s6_1", "段落标题": "第6节 · 开场钩子", "讲稿正文": "", "建议分钟": 2, "课节序号": 6, "段落序号": 1}, {"_id": "seed_s6_2", "段落标题": "第6节 · 本节收益", "讲稿正文": "", "建议分钟": 2, "课节序号": 6, "段落序号": 2}, {"_id": "seed_s6_3", "段落标题": "第6节 · 核心内容", "讲稿正文": "", "建议分钟": 18, "课节序号": 6, "段落序号": 3}, {"_id": "seed_s6_4", "段落标题": "第6节 · 案例演示", "讲稿正文": "", "建议分钟": 4, "课节序号": 6, "段落序号": 4}, {"_id": "seed_s6_5", "段落标题": "第6节 · 练习互动", "讲稿正文": "", "建议分钟": 2, "课节序号": 6, "段落序号": 5}, {"_id": "seed_s6_6", "段落标题": "第6节 · 总结预告", "讲稿正文": "", "建议分钟": 2, "课节序号": 6, "段落序号": 6}, {"_id": "seed_s7_1", "段落标题": "第7节 · 开场钩子", "讲稿正文": "", "建议分钟": 2, "课节序号": 7, "段落序号": 1}, {"_id": "seed_s7_2", "段落标题": "第7节 · 本节收益", "讲稿正文": "", "建议分钟": 2, "课节序号": 7, "段落序号": 2}, {"_id": "seed_s7_3", "段落标题": "第7节 · 核心内容", "讲稿正文": "", "建议分钟": 18, "课节序号": 7, "段落序号": 3}, {"_id": "seed_s7_4", "段落标题": "第7节 · 案例演示", "讲稿正文": "", "建议分钟": 4, "课节序号": 7, "段落序号": 4}, {"_id": "seed_s7_5", "段落标题": "第7节 · 练习互动", "讲稿正文": "", "建议分钟": 2, "课节序号": 7, "段落序号": 5}, {"_id": "seed_s7_6", "段落标题": "第7节 · 总结预告", "讲稿正文": "", "建议分钟": 2, "课节序号": 7, "段落序号": 6}, {"_id": "seed_s8_1", "段落标题": "第8节 · 开场钩子", "讲稿正文": "", "建议分钟": 2, "课节序号": 8, "段落序号": 1}, {"_id": "seed_s8_2", "段落标题": "第8节 · 本节收益", "讲稿正文": "", "建议分钟": 2, "课节序号": 8, "段落序号": 2}, {"_id": "seed_s8_3", "段落标题": "第8节 · 核心内容", "讲稿正文": "", "建议分钟": 18, "课节序号": 8, "段落序号": 3}, {"_id": "seed_s8_4", "段落标题": "第8节 · 案例演示", "讲稿正文": "", "建议分钟": 4, "课节序号": 8, "段落序号": 4}, {"_id": "seed_s8_5", "段落标题": "第8节 · 练习互动", "讲稿正文": "", "建议分钟": 2, "课节序号": 8, "段落序号": 5}, {"_id": "seed_s8_6", "段落标题": "第8节 · 总结预告", "讲稿正文": "", "建议分钟": 2, "课节序号": 8, "段落序号": 6}, {"_id": "seed_s9_1", "段落标题": "第9节 · 开场钩子", "讲稿正文": "", "建议分钟": 2, "课节序号": 9, "段落序号": 1}, {"_id": "seed_s9_2", "段落标题": "第9节 · 本节收益", "讲稿正文": "", "建议分钟": 2, "课节序号": 9, "段落序号": 2}, {"_id": "seed_s9_3", "段落标题": "第9节 · 核心内容", "讲稿正文": "", "建议分钟": 18, "课节序号": 9, "段落序号": 3}, {"_id": "seed_s9_4", "段落标题": "第9节 · 案例演示", "讲稿正文": "", "建议分钟": 4, "课节序号": 9, "段落序号": 4}, {"_id": "seed_s9_5", "段落标题": "第9节 · 练习互动", "讲稿正文": "", "建议分钟": 2, "课节序号": 9, "段落序号": 5}, {"_id": "seed_s9_6", "段落标题": "第9节 · 总结预告", "讲稿正文": "", "建议分钟": 2, "课节序号": 9, "段落序号": 6}, {"_id": "seed_s10_1", "段落标题": "第10节 · 开场钩子", "讲稿正文": "", "建议分钟": 2, "课节序号": 10, "段落序号": 1}, {"_id": "seed_s10_2", "段落标题": "第10节 · 本节收益", "讲稿正文": "", "建议分钟": 2, "课节序号": 10, "段落序号": 2}, {"_id": "seed_s10_3", "段落标题": "第10节 · 核心内容", "讲稿正文": "", "建议分钟": 18, "课节序号": 10, "段落序号": 3}, {"_id": "seed_s10_4", "段落标题": "第10节 · 案例演示", "讲稿正文": "", "建议分钟": 4, "课节序号": 10, "段落序号": 4}, {"_id": "seed_s10_5", "段落标题": "第10节 · 练习互动", "讲稿正文": "", "建议分钟": 2, "课节序号": 10, "段落序号": 5}, {"_id": "seed_s10_6", "段落标题": "第10节 · 总结预告", "讲稿正文": "", "建议分钟": 2, "课节序号": 10, "段落序号": 6}], "materials": [{"_id": "seed_m1", "素材内容": "一个初二男生，妈妈撤掉所有奖励后反而开始主动早起背单词——因为他终于觉得\"这是我自己决定的事\"", "类型": "故事", "适用课节": "1", "已使用": false, "收录日期": "2026-08-28"}, {"_id": "seed_m2", "素材内容": "自驱力不是靠激励出来的，是靠减少干扰长出来的", "类型": "金句", "适用课节": "通用", "已使用": false, "收录日期": "2026-08-28"}, {"_id": "seed_m3", "素材内容": "现场练习：让孩子自己给下周排一次时间表，父母只问三个问题，不评价", "类型": "互动", "适用课节": "4", "已使用": false, "收录日期": "2026-08-28"}, {"_id": "seed_m4", "素材内容": "家长最高频的疑问：不给奖励他就不动，是不是说明奖励还是得给？", "类型": "疑问", "适用课节": "1", "已使用": false, "收录日期": "2026-08-28"}, {"_id": "seed_m5", "素材内容": "某培训机构把\"打卡奖励\"全部取消，改成学员自己设定目标并公开承诺，三个月完课率反而上升", "类型": "案例", "适用课节": "8", "已使用": false, "收录日期": "2026-08-28"}]}; }
+
+/* ---------- derived ---------- */
+function lessonByNo(n){
+  for(var i=0;i<state.lessons.length;i++){ if(state.lessons[i]['序号']===n) return state.lessons[i]; }
+  for(var j=0;j<state.lessons.length;j++){ if(Number(state.lessons[j]['序号'])===Number(n)) return state.lessons[j]; }
+  return null;
+}
+function segsOf(n){
+  return state.scripts.filter(function(s){ return Number(s['课节序号'])===Number(n); })
+    .sort(function(a,b){ return Number(a['段落序号'])-Number(b['段落序号']); });
+}
+function findSeg(list, idx){
+  for(var i=0;i<list.length;i++){ if(Number(list[i]['段落序号'])===idx) return list[i]; }
+  return null;
+}
+function nextStep(l){
+  for(var i=0;i<STEPS.length;i++){ if(!rowVal(l, STEPS[i])) return STEPS[i]; }
+  return null;
+}
+function doneCount(l){
+  var c=0; for(var i=0;i<STEPS.length;i++){ if(rowVal(l, STEPS[i])) c++; } return c;
+}
+function totalPct(){
+  var total = state.lessons.length * STEPS.length;
+  if(!total) return 0;
+  var d=0; state.lessons.forEach(function(l){ d += doneCount(l); });
+  return Math.round(d/total*100);
+}
+
+/* ---------- render ---------- */
+function renderAll(){ renderRing(); renderToday(); renderBoard(); renderChips(); renderScript(); renderMaterials(); }
+
+function renderRing(){
+  var pct = totalPct();
+  var C = 188.5;
+  $('#ringFg').setAttribute('stroke-dashoffset', String(C - C*pct/100));
+  var t = $('#ringTxt'); t.textContent = pct + '%'; bind(t, DB_LESSONS);
+  var done = 0, total = state.lessons.length*STEPS.length;
+  state.lessons.forEach(function(l){ done += doneCount(l); });
+  var s = $('#hdSub');
+  s.textContent = state.lessons.length + ' 节视频课 · 每节 30 分钟 · 已完成 ' + done + '/' + total + ' 道工序';
+  bind(s, DB_LESSONS);
+}
+
+function renderToday(){
+  var today = ymd(new Date());
+  var items = [];
+  state.lessons.forEach(function(l){
+    var nx = nextStep(l);
+    if(!nx) return;
+    var due = l['截止日期'] ? String(l['截止日期']).slice(0,10) : '';
+    if(!due || due > today) return;
+    items.push({ l:l, step:nx, due:due, over:due < today });
+  });
+  items.sort(function(a,b){ return a.due < b.due ? -1 : (a.due > b.due ? 1 : 0); });
+
+  var box = $('#todayList');
+  $('#todayCnt').textContent = items.length ? (items.length + ' 项') : '';
+  if(!items.length){
+    box.innerHTML = '<div class="empty">今天没有到期的课节。去下面的进度看板挑一节推进，或给它设个截止日期。</div>';
+    return;
+  }
+  var h = '';
+  items.forEach(function(it){
+    var no = it.l['序号'];
+    h += '<div class="td'+(it.over?' over':'')+'">'
+      + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="'+(it.over?'#DC2626':'#D97706')+'" stroke-width="2" stroke-linecap="round"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M16.3 7.7l2.1-2.1"/><circle cx="12" cy="14" r="5"/></svg>'
+      + '<div class="td-m"><b>第 ' + esc(no) + ' 节 · 待办：' + esc(it.step) + '</b>'
+      + '<span>' + esc(it.l['课节标题'] || '') + ' · 截止 ' + fmtCN(it.due) + (it.over ? '（已逾期）' : '（今天到期）') + '</span></div>'
+      + '<button class="btn sm" data-go="' + esc(no) + '">去处理</button>'
+      + '<button class="btn sm" data-done="' + esc(it.l._id) + '" data-step="' + esc(it.step) + '">标记完成</button>'
+      + '</div>';
+  });
+  box.innerHTML = h;
+}
+
+function renderBoard(){
+  var box = $('#board');
+  $('#boardCnt').textContent = state.lessons.length ? (state.lessons.length + ' 节') : '';
+  if(!state.lessons.length){ box.innerHTML = '<div class="empty">还没有课节</div>'; return; }
+  var today = ymd(new Date());
+  var h = '';
+  state.lessons.forEach(function(l){
+    var done = doneCount(l), pct = Math.round(done/STEPS.length*100);
+    var nx = nextStep(l);
+    var due = l['截止日期'] ? String(l['截止日期']).slice(0,10) : '';
+    var overdue = due && due < today && nx;
+    var steps = '';
+    STEPS.forEach(function(s){
+      var on = !!rowVal(l, s);
+      steps += '<button class="st'+(on?' done':'')+((s===nx)?' cur':'')+'" data-rec="'+esc(l._id)+'" data-step="'+esc(s)+'">'
+        + '<i></i>' + esc(s) + '</button>';
+    });
+    h += '<div class="lc">'
+      + '<div class="lc-top"><span class="idx">第 ' + esc(l['序号']) + ' 节</span>'
+      + '<span class="idx">' + done + '/' + STEPS.length + '</span></div>'
+      + '<div class="lc-title" data-field="课节标题" data-edit="' + esc(l._id) + '" data-sp-bindable="database" data-sp-database-id="H0IeEof4d9itMZz6HHGG79">' + esc(l['课节标题'] || '未命名课节') + '</div>'
+      + '<div class="lc-point" data-field="本节要点" data-sp-bindable="database" data-sp-database-id="H0IeEof4d9itMZz6HHGG79">' + esc(l['本节要点'] || '点标题补充这一节的一句核心观点') + '</div>'
+      + '<div class="bar"><i style="width:' + pct + '%"></i></div>'
+      + '<div class="steps">' + steps + '</div>'
+      + '<div class="lc-foot"><span class="due'+(overdue?' red':'')+'">截止'
+      + '<input type="date" data-due="' + esc(l._id) + '" value="' + esc(due) + '"></span>'
+      + '<button class="btn sm" data-go="' + esc(l['序号']) + '">写讲稿</button></div>'
+      + '</div>';
+  });
+  box.innerHTML = h;
+}
+
+function renderChips(){
+  var h = '';
+  state.lessons.forEach(function(l){
+    var full = !nextStep(l);
+    h += '<button class="chip'+(Number(l['序号'])===Number(state.cur)?' on':'')+(full?' dn':'')+'" data-no="'+esc(l['序号'])+'" title="'+esc(l['课节标题']||'')+'">'
+      + esc(l['序号']) + '<i></i></button>';
+  });
+  $('#chips').innerHTML = h;
+}
+
+function renderScript(){
+  var no = state.cur;
+  var l = lessonByNo(no);
+  var title = $('#scriptTitle');
+  title.textContent = '第 ' + no + ' 节 · ' + ((l && l['课节标题']) || '未命名课节');
+  bind(title, DB_LESSONS);
+
+  var segs = segsOf(no);
+  var est = 0, h = '';
+  SEGMENTS.forEach(function(sg, i){
+    var rec = findSeg(segs, i+1);
+    var text = rec ? (rec['讲稿正文'] || '') : '';
+    var c = chars(text);
+    var m = c / state.speed;
+    est += m;
+    h += '<div class="seg">'
+      + '<div class="seg-h"><b>' + esc(sg.n) + '</b>'
+      + '<span data-meta="' + (i+1) + '" data-sp-bindable="database" data-sp-database-id="VGbxjmlMyexyARLLEsYKoQ">'
+      + '建议 ' + sg.m + ' 分钟 · 已写 ' + c + ' 字 ≈ ' + m.toFixed(1) + ' 分钟</span></div>'
+      + '<textarea data-field="讲稿正文" data-seg="' + (i+1) + '" data-id="' + esc(rec ? rec._id : '') + '" placeholder="' + esc(sg.tip) + '">' + esc(text) + '</textarea>'
+      + '</div>';
+  });
+  $('#segs').innerHTML = h;
+
+  var over = est > TOTAL_MIN;
+  $('#durTxt').textContent = est.toFixed(1) + ' / ' + TOTAL_MIN + ' 分钟';
+  $('#durBar').style.width = Math.min(100, est/TOTAL_MIN*100) + '%';
+  $('#durbar').classList.toggle('over', over);
+
+  var ms = state.materials.filter(function(m){
+    var a = String(m['适用课节'] == null ? '' : m['适用课节']).trim();
+    return a === String(no) || a === '' || a === '通用';
+  });
+  var mh = ms.length ? '' : '<div class="mini">这一节还没有素材。去「素材灵感池」加一条，或写「通用」让每节都能看到。</div>';
+  ms.forEach(function(m){
+    mh += '<div class="mini" data-sp-bindable="database" data-sp-database-id="oY2KQhqTG1CGMMlDCwne7R">'
+      + '<span class="mtag">' + esc(m['类型'] || '未分类') + '</span>' + esc(m['素材内容'] || '') + '</div>';
+  });
+  $('#segMats').innerHTML = mh;
+}
+
+function renderMaterials(){
+  $('#matCnt').textContent = state.materials.length ? (state.materials.length + ' 条') : '';
+  var list = state.materials.filter(function(m){
+    return !state.filter || (m['类型'] || '') === state.filter;
+  });
+  var box = $('#matList');
+  if(!list.length){ box.innerHTML = '<div class="empty">还没有素材</div>'; return; }
+  var h = '';
+  list.forEach(function(m){
+    h += '<div class="mrow'+(m['已使用']?' used':'')+'">'
+      + '<div class="mc" data-field="素材内容" data-sp-bindable="database" data-sp-database-id="oY2KQhqTG1CGMMlDCwne7R">'
+      + '<span class="mtag">' + esc(m['类型'] || '未分类') + '</span>'
+      + '<span class="mtag g">' + (String(m['适用课节']||'').trim() ? ('第 ' + esc(m['适用课节']) + ' 节') : '通用') + '</span>'
+      + '<span data-field="收录日期" data-sp-bindable="database" data-sp-database-id="oY2KQhqTG1CGMMlDCwne7R" style="font-size:12px;color:#9CA3AF;margin-left:6px">' + esc(String(m['收录日期']||'').slice(0,10)) + '</span>'
+      + '<br>' + esc(m['素材内容'] || '') + '</div>'
+      + '<div class="mact">'
+      + '<button class="btn sm" data-use="' + esc(m._id) + '">' + (m['已使用'] ? '已用' : '标记已用') + '</button>'
+      + '<button class="btn sm dgr" data-del="' + esc(m._id) + '">删除</button>'
+      + '</div></div>';
+  });
+  box.innerHTML = h;
+}
+
+function checkTip(){
+  var n = state.materials.length;
+  var box = $('#tipBar');
+  if(n >= 30){ box.textContent = '数据已积累 ' + n + ' 条素材，建议点右上角「导出 JSON 备份」存一份到本地。'; box.classList.remove('hide'); }
+  else { box.classList.add('hide'); }
+}
+
+/* ---------- events ---------- */
+function switchView(v){
+  $$('.tab').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-view')===v); });
+  $('#view-board').classList.toggle('hide', v!=='board');
+  $('#view-script').classList.toggle('hide', v!=='script');
+  $('#view-material').classList.toggle('hide', v!=='material');
+}
+
+$$('.tab').forEach(function(b){ b.addEventListener('click', function(){ switchView(b.getAttribute('data-view')); }); });
+
+document.addEventListener('click', function(e){
+  var t = e.target.closest ? e.target.closest('button') : null;
+  if(!t) return;
+
+  if(t.classList.contains('tab')) return;
+
+  var go = t.getAttribute('data-go');
+  if(go){ switchView('script'); setLesson(Number(go)); window.scrollTo({top:0, behavior:'smooth'}); return; }
+
+  var step = t.getAttribute('data-step');
+  if(step){
+    var rec = t.getAttribute('data-rec');
+    var l = null;
+    state.lessons.forEach(function(x){ if(x._id===rec) l=x; });
+    if(!l) return;
+    var nv = !rowVal(l, step);
+    var props = {}; props[step] = { checkbox: nv };
+    l[step] = nv;
+    renderRing(); renderToday(); renderBoard(); renderChips();
+    patchLesson(rec, props);
+    return;
+  }
+
+  var del = t.getAttribute('data-del');
+  if(del){
+    if(!confirm('删除这条素材？删除后不可恢复。')) return;
+    state.materials = state.materials.filter(function(m){ return m._id!==del; });
+    renderMaterials(); renderScript(); saveLocal();
+    if(db && state.online){
+      setSync('syncing');
+      db.deleteRecord({ databaseId: 'oY2KQhqTG1CGMMlDCwne7R', recordId: del })
+        .then(function(){ setSync('ok'); saveLocal(); toast('已删除'); })
+        .catch(function(){ offlineFail('删除未同步到云端'); });
+    }
+    return;
+  }
+
+  var use = t.getAttribute('data-use');
+  if(use){
+    var m = null;
+    state.materials.forEach(function(x){ if(x._id===use) m=x; });
+    if(!m) return;
+    var nv = !m['已使用'];
+    m['已使用'] = nv;
+    var p = {}; p['已使用'] = { checkbox: nv };
+    renderMaterials();
+    patchMaterial(use, p);
+    return;
+  }
+
+  var ft = t.getAttribute('data-ft');
+  if(ft !== null && t.parentNode && t.parentNode.id === 'matFilters'){
+    state.filter = ft;
+    $$('#matFilters .chip').forEach(function(c){ c.classList.toggle('on', c===t); });
+    renderMaterials();
+    return;
+  }
+});
+
+$('#board').addEventListener('click', function(e){
+  var el = e.target.closest ? e.target.closest('.lc-title') : null;
+  if(!el) return;
+  var id = el.getAttribute('data-edit');
+  var l = null;
+  state.lessons.forEach(function(x){ if(x._id===id) l=x; });
+  if(!l) return;
+  var field = (e.target === el) ? '课节标题' : '';
+  var cur = field === '课节标题' ? (l['课节标题']||'') : (l['本节要点']||'');
+  var v = prompt(field === '课节标题' ? '修改课节标题' : '这一节的一句核心观点', cur);
+  if(v === null) return;
+  var props = {}; props[field] = { text: v };
+  l[field] = v;
+  renderBoard(); renderChips(); renderToday(); renderScript();
+  patchLesson(id, props, '已保存');
+});
+
+$('#board').addEventListener('change', function(e){
+  var el = e.target;
+  if(el.tagName !== 'INPUT' || el.type !== 'date') return;
+  var id = el.getAttribute('data-due');
+  var l = null;
+  state.lessons.forEach(function(x){ if(x._id===id) l=x; });
+  if(!l) return;
+  var props = {}; props['截止日期'] = { date: el.value };
+  l['截止日期'] = el.value;
+  renderToday(); renderBoard();
+  patchLesson(id, props, '截止日期已更新');
+});
+
+function setLesson(n){
+  state.cur = n;
+  renderChips(); renderScript();
+  window.scrollTo({ top: $('#view-script').offsetTop - 10, behavior: 'smooth' });
+}
+
+$('#chips').addEventListener('click', function(e){
+  var t = e.target.closest ? e.target.closest('.chip') : null;
+  if(!t) return;
+  setLesson(Number(t.getAttribute('data-no')));
+});
+
+$('#speed').addEventListener('change', function(){ state.speed = Number(this.value); renderScript(); });
+
+var segTimers = {};
+$('#segs').addEventListener('input', function(e){
+  var ta = e.target;
+  if(ta.tagName !== 'TEXTAREA') return;
+  var idx = Number(ta.getAttribute('data-seg'));
+  var c = chars(ta.value);
+  var m = c / state.speed;
+  var meta = $('[data-meta="'+idx+'"]');
+  if(meta){
+    meta.textContent = '建议 ' + SEGMENTS[idx-1].m + ' 分钟 · 已写 ' + c + ' 字 ≈ ' + m.toFixed(1) + ' 分钟';
+    bind(meta, DB_SCRIPTS);
+  }
+  var est = 0;
+  $$('#segs textarea').forEach(function(x){ est += chars(x.value)/state.speed; });
+  $('#durTxt').textContent = est.toFixed(1) + ' / ' + TOTAL_MIN + ' 分钟';
+  $('#durBar').style.width = Math.min(100, est/TOTAL_MIN*100) + '%';
+  $('#durbar').classList.toggle('over', est > TOTAL_MIN);
+
+  var id = ta.getAttribute('data-id');
+  if(!id) return;
+  var key = String(idx);
+  clearTimeout(segTimers[key]);
+  segTimers[key] = setTimeout(function(){
+    var props = {}; props['讲稿正文'] = { text: ta.value };
+    patchScript(id, props);
+  }, 900);
+});
+
+$('#btnAddMat').addEventListener('click', function(){
+  var content = $('#mContent').value.trim();
+  if(!content){ toast('先写点内容'); return; }
+  var typeSel = $('#mType');
+  var typeId = typeSel.value;
+  var typeText = '';
+  if(typeId && typeSel.selectedIndex > -1) typeText = typeSel.options[typeSel.selectedIndex].textContent;
+  var lesson = $('#mLesson').value.trim();
+  var today = ymd(new Date());
+  var props = {
+    '素材内容': { text: content },
+    '适用课节': { text: lesson },
+    '已使用':   { checkbox: false },
+    '收录日期': { date: today }
+  };
+  if(typeId) props['类型'] = { select: typeId };
+
+  var local = { _id:'tmp_'+Date.now(), '素材内容':content, '类型':typeText, '适用课节':lesson, '已使用':false, '收录日期':today };
+  state.materials.unshift(local);
+  $('#mContent').value = ''; $('#mLesson').value = '';
+  renderMaterials(); renderScript(); checkTip(); saveLocal();
+
+  if(db && state.online){
+    setSync('syncing');
+    db.addRecord({ databaseId: 'oY2KQhqTG1CGMMlDCwne7R', properties: props })
+      .then(function(r){
+        if(r && r.id) local._id = r.id;
+        clearDraft();
+        setSync('ok'); saveLocal(); toast('已添加'); renderMaterials();
+      })
+      .catch(function(){ state.online=false; setSync('offline'); toast('已存本机，联网后同步'); });
+  } else {
+    toast('离线模式，已存本机');
+  }
+});
+
+/* 表单草稿本地缓存：写到一半关掉页面不丢 */
+function saveDraft(){
+  try{
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      content: $('#mContent').value,
+      type: $('#mType').value,
+      lesson: $('#mLesson').value
+    }));
+  }catch(e){}
+}
+function clearDraft(){ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} }
+function restoreDraft(){
+  var d;
+  try{ d = JSON.parse(localStorage.getItem(DRAFT_KEY)); }catch(e){ d = null; }
+  if(!d) return;
+  if(d.content) $('#mContent').value = d.content;
+  if(d.lesson) $('#mLesson').value = d.lesson;
+  if(d.type) $('#mType').value = d.type;
+}
+var draftTimer = null;
+$('#mContent').addEventListener('input', function(){ clearTimeout(draftTimer); draftTimer = setTimeout(saveDraft, 300); });
+$('#mLesson').addEventListener('input', function(){ clearTimeout(draftTimer); draftTimer = setTimeout(saveDraft, 300); });
+
+$('#btnExport').addEventListener('click', function(){
+  var blob = new Blob([JSON.stringify(snapshot(), null, 2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '课程制作台备份_' + ymd(new Date()) + '.json';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  toast('备份已导出');
+});
+
+$('#btnImport').addEventListener('click', function(){ $('#fileInput').click(); });
+
+$('#fileInput').addEventListener('change', function(){
+  var f = this.files && this.files[0];
+  if(!f) return;
+  var rd = new FileReader();
+  rd.onload = function(){
+    var d;
+    try { d = JSON.parse(rd.result); } catch(e){ toast('文件格式不对'); return; }
+    if(!d || !d.lessons){ toast('不是本工作台的备份文件'); return; }
+    if(!confirm('导入会覆盖当前数据，确定继续？')) return;
+    state.lessons = d.lessons || []; state.scripts = d.scripts || []; state.materials = d.materials || [];
+    renderAll(); saveLocal();
+    if(db && state.online){
+      setSync('syncing');
+      var jobs = [];
+      state.lessons.forEach(function(l){
+        if(!l._id) return;
+        var p = {};
+        STEPS.forEach(function(s){ p[s] = { checkbox: !!rowVal(l, s) }; });
+        p['课节标题'] = { text: l['课节标题'] || '' };
+        p['本节要点'] = { text: l['本节要点'] || '' };
+        if(l['截止日期']) p['截止日期'] = { date: String(l['截止日期']).slice(0,10) };
+        jobs.push(patchLesson(l._id, p));
+      });
+      state.scripts.forEach(function(s){
+        if(!s._id) return;
+        var p = {}; p['讲稿正文'] = { text: s['讲稿正文'] || '' };
+        jobs.push(patchScript(s._id, p));
+      });
+      Promise.all(jobs).then(function(){ setSync('ok'); toast('导入完成'); })
+        .catch(function(){ toast('部分数据未同步到云端'); });
+    } else {
+      toast('已导入到本机');
+    }
+  };
+  rd.readAsText(f);
+  this.value = '';
+});
+
+$('#btnClear').addEventListener('click', function(){
+  if(!confirm('清空所有讲稿正文和素材？课节结构和工序状态会保留。')) return;
+  if(!confirm('再确认一次：这一步不可撤销，建议先导出备份。')) return;
+  state.scripts.forEach(function(s){ s['讲稿正文'] = ''; });
+  state.materials = [];
+  renderAll(); saveLocal();
+  if(db && state.online){
+    setSync('syncing');
+    var jobs = [];
+    state.scripts.forEach(function(s){
+      if(!s._id) return;
+      var p = {}; p['讲稿正文'] = { text: '' };
+      jobs.push(patchScript(s._id, p));
+    });
+    Promise.all(jobs).then(function(){ setSync('ok'); toast('已清空'); })
+      .catch(function(){ toast('部分数据未同步到云端'); });
+  } else { toast('已清空本机数据'); }
+});
+
+/* ---------- boot ---------- */
+restoreDraft();
+loadSchema().then(loadAll);
+
+})();
+</script>
+</body>
+</html>
