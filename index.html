@@ -64,13 +64,6 @@ svg{display:block}
 .sub{font-size:13px;color:var(--mut);margin:4px 0 0}
 
 /* today */
-#todayList{display:flex;flex-direction:column;gap:8px;margin-top:12px}
-.td{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:#FCFCFD}
-.td.over{border-color:#FECACA;background:var(--red-l)}
-.td-m{flex:1;min-width:0}
-.td-m b{font-weight:500;font-size:14px}
-.td-m span{display:block;font-size:12px;color:var(--mut)}
-.td.over .td-m span{color:var(--red)}
 .empty{font-size:14px;color:var(--mut);padding:14px 0;text-align:center}
 
 /* tabs */
@@ -187,16 +180,6 @@ svg{display:block}
 
 <div class="wrap">
   <div id="tipBar" class="banner tip hide"></div>
-
-  <section class="card" id="today">
-    <h2>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      今天要处理
-      <span class="cnt" id="todayCnt"></span>
-    </h2>
-    <p class="sub">到期的课节会列在这里，昨天没推进完的自动顺延到今天</p>
-    <div id="todayList"><div class="empty">加载中…</div></div>
-  </section>
 
   <nav class="tabs">
     <button class="tab on" data-view="board">课程进度看板</button>
@@ -321,7 +304,6 @@ function ymd(d){
   var m = d.getMonth()+1, dd = d.getDate();
   return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dd<10?'0':'')+dd;
 }
-function fmtCN(s){ if(!s) return ''; var p=String(s).slice(0,10).split('-'); return p.length<3?String(s):(p[1].replace(/^0/,'')+'月'+p[2].replace(/^0/,'')+'日'); }
 function chars(t){ return String(t||'').replace(/\s/g,'').length; }
 function bind(el, dbId){ if(!el) return; el.setAttribute('data-sp-bindable','database'); el.setAttribute('data-sp-database-id', dbId); }
 function toast(msg){
@@ -467,7 +449,7 @@ function totalPct(){
 }
 
 /* ---------- render ---------- */
-function renderAll(){ renderRing(); renderToday(); renderBoard(); renderChips(); renderScript(); renderMaterials(); }
+function renderAll(){ renderRing(); renderBoard(); renderChips(); renderScript(); renderMaterials(); }
 
 function renderRing(){
   var pct = totalPct();
@@ -479,38 +461,6 @@ function renderRing(){
   var s = $('#hdSub');
   s.textContent = state.lessons.length + ' 节视频课 · 每节 30 分钟 · 已完成 ' + done + '/' + total + ' 道工序';
   bind(s, DB_LESSONS);
-}
-
-function renderToday(){
-  var today = ymd(new Date());
-  var items = [];
-  state.lessons.forEach(function(l){
-    var nx = nextStep(l);
-    if(!nx) return;
-    var due = l['截止日期'] ? String(l['截止日期']).slice(0,10) : '';
-    if(!due || due > today) return;
-    items.push({ l:l, step:nx, due:due, over:due < today });
-  });
-  items.sort(function(a,b){ return a.due < b.due ? -1 : (a.due > b.due ? 1 : 0); });
-
-  var box = $('#todayList');
-  $('#todayCnt').textContent = items.length ? (items.length + ' 项') : '';
-  if(!items.length){
-    box.innerHTML = '<div class="empty">今天没有到期的课节。去下面的进度看板挑一节推进，或给它设个截止日期。</div>';
-    return;
-  }
-  var h = '';
-  items.forEach(function(it){
-    var no = it.l['序号'];
-    h += '<div class="td'+(it.over?' over':'')+'">'
-      + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="'+(it.over?'#DC2626':'#D97706')+'" stroke-width="2" stroke-linecap="round"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M16.3 7.7l2.1-2.1"/><circle cx="12" cy="14" r="5"/></svg>'
-      + '<div class="td-m"><b>第 ' + esc(no) + ' 节 · 待办：' + esc(it.step) + '</b>'
-      + '<span>' + esc(it.l['课节标题'] || '') + ' · 截止 ' + fmtCN(it.due) + (it.over ? '（已逾期）' : '（今天到期）') + '</span></div>'
-      + '<button class="btn sm" data-go="' + esc(no) + '">去处理</button>'
-      + '<button class="btn sm" data-done="' + esc(it.l._id) + '" data-step="' + esc(it.step) + '">标记完成</button>'
-      + '</div>';
-  });
-  box.innerHTML = h;
 }
 
 function renderBoard(){
@@ -537,7 +487,7 @@ function renderBoard(){
       + '<div class="lc-point" data-field="本节要点" data-edit="' + esc(l._id) + '" data-sp-bindable="database" data-sp-database-id="H0IeEof4d9itMZz6HHGG79">' + esc(l['本节要点'] || '点这里写一句核心观点') + '</div>'
       + '<div class="bar"><i style="width:' + pct + '%"></i></div>'
       + '<div class="steps">' + steps + '</div>'
-      + '<div class="lc-foot"><span class="due'+(overdue?' red':'')+'">截止'
+      + '<div class="lc-foot"><span class="due'+(overdue?' red':'')+'">' + (overdue ? '已逾期' : '截止')
       + '<input type="date" data-due="' + esc(l._id) + '" value="' + esc(due) + '"></span>'
       + '<button class="btn sm" data-go="' + esc(l['序号']) + '">写讲稿</button></div>'
       + '</div>';
@@ -645,20 +595,6 @@ document.addEventListener('click', function(e){
   var go = t.getAttribute('data-go');
   if(go){ switchView('script'); setLesson(Number(go)); window.scrollTo({top:0, behavior:'smooth'}); return; }
 
-  /* 置顶区「标记完成」：必须排在 data-step 之前，否则会被下面的工序分支拦截 */
-  var doneId = t.getAttribute('data-done');
-  if(doneId){
-    var dstep = t.getAttribute('data-step');
-    var dl = null;
-    state.lessons.forEach(function(x){ if(x._id===doneId) dl=x; });
-    if(!dl || !dstep) return;
-    var dp = {}; dp[dstep] = { checkbox: true };
-    dl[dstep] = true;
-    renderRing(); renderToday(); renderBoard(); renderChips(); renderScript();
-    patchLesson(doneId, dp, '已完成：' + dstep);
-    return;
-  }
-
   var step = t.getAttribute('data-step');
   if(step){
     var rec = t.getAttribute('data-rec');
@@ -669,7 +605,7 @@ document.addEventListener('click', function(e){
     var nv = !rowVal(l, step);
     var props = {}; props[step] = { checkbox: nv };
     l[step] = nv;
-    renderRing(); renderToday(); renderBoard(); renderChips();
+    renderRing(); renderBoard(); renderChips(); renderScript();
     patchLesson(rec, props);
     return;
   }
@@ -724,7 +660,7 @@ $('#board').addEventListener('click', function(e){
   if(v === null || v === undefined) return;
   var props = {}; props[field] = { text: v };
   l[field] = v;
-  renderBoard(); renderChips(); renderToday(); renderScript();
+  renderBoard(); renderChips(); renderScript();
   patchLesson(id, props, '已保存');
 });
 
@@ -737,7 +673,7 @@ $('#board').addEventListener('change', function(e){
   if(!l) return;
   var props = {}; props['截止日期'] = { date: el.value };
   l['截止日期'] = el.value;
-  renderToday(); renderBoard();
+  renderBoard();
   patchLesson(id, props, '截止日期已更新');
 });
 
